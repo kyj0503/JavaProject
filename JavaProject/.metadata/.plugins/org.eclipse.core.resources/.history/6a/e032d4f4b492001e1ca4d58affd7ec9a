@@ -1,0 +1,74 @@
+package tp.design;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+
+import app.design_panel.login_create_account_design;
+import tp.data.login_data;
+import tp.module.module;
+import tp.module.ToDoDAO;
+
+public class di_login_create_account {
+    @SuppressWarnings({ "static-access", "unused" })
+    public void load(JFrame i) {
+
+        login_create_account_design ds = new login_create_account_design();
+        i.add(ds);
+        i.setVisible(true);
+
+        JTextField id = ds.get_id();
+        JPasswordField password = ds.get_password();
+        JTextField name = ds.get_name();
+
+        JButton create_account = ds.get_btn();
+
+        create_account.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // 회원가입 로직 구현
+                String enteredId = id.getText();
+                char[] enteredPw = password.getPassword();
+                String enteredName = name.getText();
+
+                // Check if any field is blank
+                if (enteredId.trim().isEmpty() || enteredPw.length == 0 || enteredName.trim().isEmpty()) {
+                    // Show an error message if any field is blank
+                    JOptionPane.showMessageDialog(null, "모든 칸을 입력하세요.");
+                } else {
+                    // Check if the ID is already registered
+                    ToDoDAO dao = ToDoDAO.getInstance();
+                    if (dao.isUserRegistered(enteredId)) {
+                        // ID already exists, show error message
+                        JOptionPane.showMessageDialog(null, "이미 존재하는 사용자 ID입니다.");
+                    } else {
+                        // ID is not registered, proceed with registration
+                        login_data registrationData = new login_data(null, password, null);
+                        registrationData.setId(enteredId);
+                        registrationData.setPw(password);
+                        registrationData.setName(enteredName);
+
+                        String enteredPwString = new String(enteredPw);
+
+                        // 회원가입 시도
+                        if (dao.registerUser(registrationData.getId(), enteredPwString, registrationData.getName())) {
+                            // 회원 가입 성공
+                            JOptionPane.showMessageDialog(null, "회원 가입 성공!");
+                        } else {
+                            // 회원 가입 실패. 일반적으로는 여기로 오지 않겠지만, 실패 시 처리
+                            JOptionPane.showMessageDialog(null, "회원 가입 실패. 다시 시도해주세요.");
+                        }
+
+                        // Login Page
+                        module m = new module();
+                        m.select(i, 0);
+                    }
+                }
+            }
+        });
+    }
+}

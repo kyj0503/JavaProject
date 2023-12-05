@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="app.design_panel.main_desion"/>
+    <fullyQualifiedTypeName name="tp.designdi_main.ToDoDAO"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="tp.designdi_main.ToDoDTO"/>
+    <fullyQualifiedTypeName name="tp.module.checkLoginCredentials"/>
+    <fullyQualifiedTypeName name="tp.module.module"/>
+    <fullyQualifiedTypeName name="java.sql.Connection"/>
+    <fullyQualifiedTypeName name="java.sql.PreparedStatement"/>
+    <fullyQualifiedTypeName name="java.sql.ResultSet"/>
+    <fullyQualifiedTypeName name="java.sql.SQLException"/>
+    <fullyQualifiedTypeName name="javax.swing.JOptionPane"/>
+    <fullyQualifiedTypeName name="tp.design.di_login"/>
+    <fullyQualifiedTypeName name="javax.swing.JFrame"/>
+    <fullyQualifiedTypeName name="tp.data.login_data"/>
+    <fullyQualifiedTypeName name="tp.module.ToDoDAO"/>
+    <fullyQualifiedTypeName name="javax.swing.JButton"/>
+</qualifiedTypeNameHistroy>

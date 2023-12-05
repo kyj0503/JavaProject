@@ -1,0 +1,28 @@
+package tp.module;
+
+// Data Transfer Object
+
+public class ToDoDTO {
+    private String data;
+
+    public ToDoDTO() {}
+
+    public ToDoDTO(String data) {
+        super();
+        this.data = data;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+    
+    //2023-11-29 추가
+    @Override
+    public String toString() {
+        return data;
+    }
+}

@@ -1,0 +1,141 @@
+package app.design_panel;
+
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import java.awt.GridLayout;
+
+/**
+ * calendar_design 클래스는 달력 디자인을 담당하는 패널을 정의합니다.
+ */
+@SuppressWarnings("serial")
+public class calendar_design extends JPanel {
+
+    private final JPanel titlePanel = new JPanel();
+    private static JPanel calendarPanel;
+    private static JLabel yearLabel;
+    private static JLabel monthLabel;
+
+    private static JButton moveLeftButton;
+    private static JButton moveRightButton;
+    private static JButton backButton;
+
+    /**
+     * CalendarDesign 클래스의 생성자입니다.
+     */
+    public calendar_design() {
+        setLayout(null);
+        setPreferredSize(new Dimension(400, 570));
+
+        // 타이틀 패널 설정
+        JPanel titlePanel = new JPanel();
+        titlePanel.setBounds(67, 10, 321, 50);
+        add(titlePanel);
+
+        JLabel titleLabel = new JLabel("Calendar");
+        titleLabel.setFont(new Font("굴림", Font.PLAIN, 30));
+        titlePanel.add(titleLabel);
+
+        // 뒤로 가기 버튼 패널 설정
+        JPanel backButtonPanel = new JPanel();
+        backButtonPanel.setBounds(10, 10, 50, 50);
+        add(backButtonPanel);
+        backButtonPanel.setLayout(null);
+
+        backButton = new JButton("X");
+        backButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // 뒤로 가기 버튼 동작 정의
+            }
+        });
+        backButton.setBounds(0, 0, 50, 50);
+        backButtonPanel.add(backButton);
+
+        // 년, 월 표시 레이블 설정
+        yearLabel = new JLabel("Year");
+        yearLabel.setFont(new Font("굴림", Font.PLAIN, 17));
+        yearLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        yearLabel.setBounds(110, 70, 87, 38);
+        add(yearLabel);
+
+        monthLabel = new JLabel("Month");
+        monthLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        monthLabel.setFont(new Font("굴림", Font.PLAIN, 17));
+        monthLabel.setBounds(209, 70, 87, 38);
+        add(monthLabel);
+
+        // 이전, 다음 달로 이동하는 버튼 설정
+        moveLeftButton = new JButton("<");
+        moveLeftButton.setBounds(33, 70, 40, 38);
+        add(moveLeftButton);
+
+        moveRightButton = new JButton(">");
+        moveRightButton.setBounds(326, 70, 40, 38);
+        add(moveRightButton);
+
+        // 달력 패널 설정
+        calendarPanel = new JPanel(new GridLayout(0, 7));
+        calendarPanel.setBounds(10, 141, 378, 387);
+        add(calendarPanel);
+
+        // 요일 타이틀 패널 설정
+        titlePanel = new JPanel(new GridLayout(1, 7));
+        titlePanel.setBounds(10, 118, 378, 22);
+        add(titlePanel);
+    }
+
+    /**
+     * 뒤로 가기 버튼 객체를 반환합니다.
+     */
+    public static JButton getBackButton() {
+        return backButton;
+    }
+
+    /**
+     * 이전 달로 이동하는 버튼 객체를 반환합니다.
+     */
+    public static JButton getMoveLeftButton() {
+        return moveLeftButton;
+    }
+
+    /**
+     * 다음 달로 이동하는 버튼 객체를 반환합니다.
+     */
+    public static JButton getMoveRightButton() {
+        return moveRightButton;
+    }
+
+    /**
+     * 달력 패널 객체를 반환합니다.
+     */
+    public static JPanel getCalendarPanel() {
+        return calendarPanel;
+    }
+
+    /**
+     * 요일 타이틀 패널 객체를 반환합니다.
+     */
+    public static JPanel getTitlePanel() {
+        return titlePanel;
+    }
+
+    /**
+     * 년도 레이블 객체를 반환합니다.
+     */
+    public static JLabel getYearLabel() {
+        return yearLabel;
+    }
+
+    /**
+     * 월 레이블 객체를 반환합니다.
+     */
+    public static JLabel getMonthLabel() {
+        return monthLabel;
+    }
+}

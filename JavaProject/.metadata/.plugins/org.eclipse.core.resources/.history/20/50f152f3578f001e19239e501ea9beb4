@@ -1,0 +1,130 @@
+package tp.module;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ToDoDAO {
+    Connection conn;           // 데이터베이스 연결을 담당하는 Connection 객체
+    ResultSet rs;              // SQL 쿼리의 결과를 담을 ResultSet 객체
+    PreparedStatement pstmt;   // SQL 쿼리를 실행하기 위한 PreparedStatement 객체
+
+    // 싱글톤 패턴을 사용하기 위한 ToDoDAO 인스턴스
+    private static ToDoDAO dao = new ToDoDAO();
+
+    // 생성자를 private로 선언하여 외부에서 직접 객체를 생성하지 못하도록 함
+    private ToDoDAO() {}
+
+    // ToDoDAO 인스턴스를 얻기 위한 정적 메서드
+    public static ToDoDAO getInstance() {
+        return dao;
+    }
+
+    // ToDo 데이터베이스 연결을 얻기 위한 메서드
+    private Connection getCon(String databaseName) throws ClassNotFoundException, SQLException {
+        Connection conn = null;
+        try {
+            // JDBC 드라이버 로드
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+            
+            // 데이터베이스 서버에 연결
+            String url = "jdbc:mysql://localhost:3306/" + databaseName;
+            String user = "root";
+            String password = "010503";
+            conn = DriverManager.getConnection(url, user, password);
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return conn;
+    } //end getCon()
+
+    // 데이터베이스 연결 및 객체 종료를 처리하는 메서드
+    private void exit() {
+        try {
+            // 연결 종료
+            if (rs != null)
+                rs.close();
+            if (pstmt != null)
+                pstmt.close();
+            if (conn != null)
+                conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    } //end exit()
+
+    // 새로운 ToDo 아이템을 데이터베이스에 삽입하는 메서드
+    public void insertToDoItem(String userId, String data) {
+        try (
+            conn = getCon("todolist");
+            pstmt = conn.prepareStatement("INSERT INTO ToDoList (user_Id, data) VALUES (?, ?)")
+        ) {
+            pstmt.setString(1, userId);
+            pstmt.setString(2, data);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    // 데이터베이스에서 모든 ToDo 아이템을 가져오는 메서드
+    public List<ToDoDTO> getAllToDoItems() {
+        List<ToDoDTO> toDoList = new ArrayList<>();
+        try {
+            conn = getCon("todolist");
+            String sql = "SELECT * FROM ToDoList";
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                // 데이터베이스 결과에서 'data' 컬럼 값을 가져와 ToDoDTO 객체를 생성하고 리스트에 추가
+                String data = rs.getString("data");
+                ToDoDTO toDoItem = new ToDoDTO(data);
+                toDoList.add(toDoItem);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            exit();
+        }
+        return toDoList;
+    }
+    
+    // 사용자 회원 가입 메서드
+    public boolean registerUser(String userId, String password) {
+        try (
+            Connection conn = getCon("userlist");
+            PreparedStatement pstmt = conn.prepareStatement("INSERT INTO userlist (user_id, password) VALUES (?, ?)");
+        ) {
+            pstmt.setString(1, userId);
+            pstmt.setString(2, password);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    // 사용자 로그인 자격 확인 메서드
+    public boolean checkLoginCredentials(String userId, String password) {
+        try (
+            Connection conn = getCon("userlist");
+            PreparedStatement pstmt = conn.prepareStatement("SELECT password FROM userlist WHERE user_id = ?");
+        ) {
+            pstmt.setString(1, userId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next() && rs.getString("password").equals(password);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+} //end class

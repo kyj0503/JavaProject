@@ -1,0 +1,152 @@
+package tp.designdi_main;
+
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.List;
+import java.util.Vector;
+
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+import app.design_panel.main_design;
+import tp.data.login_data;
+import tp.module.ToDoDAO;
+import tp.module.ToDoDTO;
+
+public class jlist {
+
+	@SuppressWarnings({ "static-access" })
+	public static void set_jlist(main_design ds) {
+		
+		// JList에 표시될 데이터를 담을 Vector 객체 생성
+		// JList 객체 생성
+        Vector<Object> vec = new Vector<>();
+        JList<Object> ads = new JList<>();
+		
+        // main_desion 객체에서 JScrollPane를 가져와서 JList를 설정
+		JScrollPane j = ds.get_jlist();
+        j.setViewportView(ads);
+        
+        // 데이터베이스에서 데이터를 불러와 JList에 설정
+        loadDataFromDatabase(vec, ads);
+		
+        // JList의 선택 모드를 다중 선택으로 설정
+		ads.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		
+		// 커스텀 폰트를 사용할 DefaultListCellRenderer 생성
+        @SuppressWarnings("serial")
+		DefaultListCellRenderer renderer = new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (c instanceof JLabel) {
+                    // 텍스트의 폰트 크기를 조절
+                	tp.module.RegCheck ck = new tp.module.RegCheck();
+                    try {
+						((JLabel) c).setFont(new Font("굴림", Font.PLAIN, ck.get_Reg()));
+					} catch (Exception e) {
+						((JLabel) c).setFont(new Font("굴림", Font.PLAIN, 20));
+					}
+                }
+                return c;
+            }
+        };
+
+        // JList의 셀 렌더러를 설정
+        ads.setCellRenderer(renderer);
+		
+		// main_desion 객체에서 JTextField를 가져와 KeyListener 추가
+		JTextField tf = ds.get_jtext();
+		tf.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				super.keyPressed(e);
+				// Enter 키를 누르고 텍스트 필드가 비어있지 않은 경우 실행
+				if (e.getKeyCode() == KeyEvent.VK_ENTER && !tf.getText().equals("")) {
+					// 텍스트 필드의 내용을 얻어와서 Vector 추가
+                    String tododata = tf.getText();
+                    vec.add(tododata);
+                    
+                    // ToDoDAO를 사용하여 새로운 to-do 아이템을 데이터베이스에 삽입
+                    ToDoDAO.getInstance().insertToDoItem(login_data.getId(), tododata, (int)ds.get_year().getSelectedItem(), 
+                    		(int)ds.get_month().getSelectedItem(), (int)ds.get_day().getSelectedItem());
+                    ads.setListData(vec);
+                    tf.setText("");
+				}
+			}
+		});
+		
+		// JList에 ListSelectionListener 추가
+		ads.addListSelectionListener(new ListSelectionListener() {
+			@SuppressWarnings("unused")
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				// JList에서 선택된 항목의 인덱스를 얻어옴
+				int index = ads.getSelectedIndex();
+			}
+		});
+		
+        // Delete button action
+        JButton delete = ds.get_delete();
+        delete.addActionListener(e -> {
+            deleteSelectedItems(ds, ads);
+        });
+	}
+	
+    public static void loadDataFromDatabase(Vector<Object> vec, JList<Object> ads) {
+        // 데이터베이스에서 userId가 동일한 ToDoList 아이템을 가져옴
+        List<ToDoDTO> dataFromDatabase = ToDoDAO.getInstance().getToDoItemsForUser(login_data.getId());
+        // 가져온 데이터를 Vector 추가
+        for (ToDoDTO item : dataFromDatabase) {
+            vec.add(item);
+        }
+        // JList에 Vector 데이터를 설정
+        ads.setListData(vec);
+    }
+    
+    public static void deleteSelectedItems(main_design ds, JList<Object> ads) {
+        // Get selected indices
+        int[] selectedIndices = ads.getSelectedIndices();
+
+        // If there are selected items
+        if (selectedIndices.length > 0) {
+            // Get the selected items from the JList model
+            List<Object> selectedItems = ads.getSelectedValuesList();
+
+            // Remove selected items from the Vector
+            Vector<Object> vec = new Vector<>(ads.getModel().getSize());
+            for (int i = 0; i < ads.getModel().getSize(); i++) {
+                if (!selectedItems.contains(ads.getModel().getElementAt(i))) {
+                    vec.add(ads.getModel().getElementAt(i));
+                }
+            }
+
+            // Remove selected items from the database
+            removeSelectedItemsFromDatabase(ds, selectedItems);
+
+            // Set the modified Vector to the JList
+            ads.setListData(vec);
+        }
+    }
+
+    private static void removeSelectedItemsFromDatabase(main_design ds, List<Object> selectedItems) {
+        for (Object selectedItem : selectedItems) {
+            // Assuming selectedItems are ToDoDTO objects
+            if (selectedItem instanceof ToDoDTO) {
+                ToDoDTO todoItem = (ToDoDTO) selectedItem;
+                ToDoDAO.getInstance().deleteToDoItem(login_data.getId(), todoItem.getId());
+            }
+        }
+    }
+
+
+}
